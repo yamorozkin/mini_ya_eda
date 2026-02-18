@@ -14,10 +14,11 @@ public class OrderController {
     private final OrderProcessor orderProcessor;
     private final OrderEntityMapper orderEntityMapper;
 
-    @PostMapping
-    public OrderDto create(@RequestBody http.order.CreateOrderRequestDto request) {
-        var saved = orderProcessor.create(request);
-        return orderEntityMapper.toOrderDto(saved);
+    @PostMapping("/{id}/pay")
+    public OrderDto payOrder(@PathVariable Long id,
+            @RequestBody OrderPaymentRequest request) {
+        var entity = orderProcessor.processPayment(id, request);
+        return orderEntityMapper.toOrderDto(entity);
     }
 
     @GetMapping("/{id}")
