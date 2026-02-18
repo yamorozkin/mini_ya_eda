@@ -8,6 +8,11 @@
         </packages>
       </persistence-unit>
       <persistence-unit moduleName="demo4ka.payment-service.main" name="Default" />
+      <persistence-unit moduleName="demo4ka.delivery-service.main" name="Default">
+        <packages>
+          <package value="delivery" />
+        </packages>
+      </persistence-unit>
     </persistence-units>
   </component>
 </project>

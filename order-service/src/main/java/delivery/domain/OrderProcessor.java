@@ -9,9 +9,13 @@ import delivery.external.PaymentHttpClient;
 import http.order.CreateOrderRequestDto;
 import http.order.OrderStatus;
 import http.payment.CreatePaymentRequestDto;
+import http.payment.CreatePaymentResponseDto;
 import http.payment.PaymentStatus;
+import kafka.OrderPaidEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,6 +29,10 @@ public class OrderProcessor {
     private final OrderJpaRepository repository;
     private final OrderEntityMapper orderEntityMapper;
     private final PaymentHttpClient paymentHttpClient;
+    private final KafkaTemplate<Long, OrderPaidEvent> kafkaTemplate;
+
+    @Value("${order-paid-topic}")
+    private String orderPaidTopic;
 
     public OrderEntity create(CreateOrderRequestDto request) {
 
@@ -65,7 +73,22 @@ public class OrderProcessor {
                 ? OrderStatus.PAYMENT_FAILED
                 : OrderStatus.PAID;
         entity.setOrderStatus(status);
+        sendOrderPaidEvent(entity, response);
+
         return repository.save(entity);
+    }
+
+    private void sendOrderPaidEvent(OrderEntity entity, CreatePaymentResponseDto response) {
+        kafkaTemplate.send(
+                orderPaidTopic,
+                entity.getId(),
+                OrderPaidEvent.builder()
+                        .orderId(entity.getId())
+                        .amount(entity.getTotalAmount())
+                        .paymentMethod(response.paymentMethod())
+                        .paymentId(response.paymentId())
+                        .build()
+        );
     }
 
 

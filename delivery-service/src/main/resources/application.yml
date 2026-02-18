@@ -1,7 +1,9 @@
 spring:
+  application:
+    name: payment-service
   datasource:
     driver-class-name: org.postgresql.Driver
-    password: root
+    password: postgres
     username: postgres
     url: jdbc:postgresql://localhost/orders
   jpa:
@@ -9,13 +11,10 @@ spring:
       ddl-auto: update
   kafka:
     consumer:
-      group-id: order-service-group
+      group-id: delivery-service-group
     bootstrap-servers: localhost:9092
-
 server:
-  port: 8080
+  port: 8082
 
-payment-service:
-  base-url: http://localhost:8081
-
-order-paid-topic: orders.event
+order-paid-topic: orders.events
+delivery-assigned-topic: delivery.events
