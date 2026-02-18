@@ -1,5 +1,6 @@
 plugins {
-    id("java")
+    java
+    id("io.spring.dependency-management") version "1.1.7"
 }
 
 group = "delivery"
@@ -13,10 +14,11 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
-    implementation("org.projectlombok:lombok")
-    testCompileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
-    testAnnotationProcessor("org.projectlombok:lombok")
+    //lombok
+    compileOnly("org.projectlombok:lombok:1.18.36")
+    annotationProcessor("org.projectlombok:lombok:1.18.36")
+    testCompileOnly("org.projectlombok:lombok:1.18.36")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.36")
 
 }
 

@@ -14,8 +14,8 @@ public class PaymentHttpClientConfig {
     private String paymentServiceBaseUrl;
 
     @Bean
-    RestClient paymentRestClient(RestClient.Builder builder) {
-        return builder
+    RestClient paymentRestClient() {
+        return RestClient.builder()
                 .baseUrl(paymentServiceBaseUrl)
                 .build();
     }
