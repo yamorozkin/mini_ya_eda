@@ -3,7 +3,7 @@ package http.order;
 public enum OrderStatus {
     PENDING_PAYMENT,
     PAID,
-    PENDING_DELIVERY,
+    DELIVERY_ASSIGNED,
     DELIVERED,
     PAYMENT_FAILED
 }

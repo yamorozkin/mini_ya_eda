@@ -18,4 +18,5 @@ server:
 payment-service:
   base-url: http://localhost:8081
 
-order-paid-topic: orders.event
+order-paid-topic: orders.events
+delivery-assigned-topic: delivery.events

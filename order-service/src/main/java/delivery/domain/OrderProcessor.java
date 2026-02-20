@@ -11,6 +11,7 @@ import http.order.OrderStatus;
 import http.payment.CreatePaymentRequestDto;
 import http.payment.CreatePaymentResponseDto;
 import http.payment.PaymentStatus;
+import kafka.DeliveryAssignedEvent;
 import kafka.OrderPaidEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -92,4 +93,23 @@ public class OrderProcessor {
     }
 
 
+    public void processDeliveryAssigned(DeliveryAssignedEvent event) {
+        var order = getOrderOrThrow(event.orderId());
+        if(!order.getOrderStatus().equals(http.order.OrderStatus.PAID)){
+            processIncorrectState(order);
+            return;
+        }
+        order.setOrderStatus(http.order.OrderStatus.DELIVERY_ASSIGNED);
+        order.setCourierName(event.courierName());
+        order.setEtaMinutes(event.etaMinutes());
+        repository.save(order);
+    }
+
+    private void processIncorrectState(OrderEntity order) {
+        if(order.getOrderStatus().equals(http.order.OrderStatus.DELIVERY_ASSIGNED)){
+            return;
+        }else if (!order.getOrderStatus().equals(http.order.OrderStatus.PAID)){
+            return;
+        }
+    }
 }

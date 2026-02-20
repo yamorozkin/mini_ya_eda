@@ -1,5 +1,6 @@
 package delivery.kafka;
 
+import kafka.DeliveryAssignedEvent;
 import kafka.OrderPaidEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -35,20 +36,20 @@ public class KafkaConfiguration {
         return new KafkaTemplate<>(orderPaidEventProducerFactory);
     }
 
-//    @Bean
-//    public ConsumerFactory<Long, OrderPaidEvent> orderPaidEventConsumerFactory(KafkaProperties kafkaProperties) {
-//        Map<String, Object> props = kafkaProperties.buildConsumerProperties();
-//        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
-//        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class);
-//        props.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, "kafka");
-//        return new DefaultKafkaConsumerFactory<>(props);
-//    }
-//
-//    @Bean
-//    public KafkaListenerContainerFactory<?> orderPaidEventListenerFactory(ConsumerFactory<Long, OrderPaidEvent> orderPaidEventConsumerFactory) {
-//        ConcurrentKafkaListenerContainerFactory<Long, OrderPaidEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
-//        factory.setConsumerFactory(orderPaidEventConsumerFactory);
-//        factory.setBatchListener(false);
-//        return factory;
-//    }
+    @Bean
+    public ConsumerFactory<Long, DeliveryAssignedEvent> deliveryAssignedEventConsumerFactory(KafkaProperties kafkaProperties) {
+        Map<String, Object> props = kafkaProperties.buildConsumerProperties();
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class);
+        props.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, "kafka");
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    @Bean
+    public KafkaListenerContainerFactory<?> deliveryAssignedEventListenerFactory(ConsumerFactory<Long, DeliveryAssignedEvent> deliveryAssignedEventConsumerFactory) {
+        ConcurrentKafkaListenerContainerFactory<Long, DeliveryAssignedEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(deliveryAssignedEventConsumerFactory);
+        factory.setBatchListener(false);
+        return factory;
+    }
 }
