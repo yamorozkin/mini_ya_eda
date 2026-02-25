@@ -32,10 +32,10 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    KafkaTemplate<Long, DeliveryAssignedEvent>  deliveryAssignedEventKafkaTemplate(
-            DefaultKafkaProducerFactory<Long, DeliveryAssignedEvent> orderPaidEventProducerFactory
+    KafkaTemplate<Long, DeliveryAssignedEvent> deliveryAssignedEventKafkaTemplate(
+            DefaultKafkaProducerFactory<Long, DeliveryAssignedEvent> deliveryAssignedEventProducerFactory
     ) {
-        return new KafkaTemplate<>(orderPaidEventProducerFactory);
+        return new KafkaTemplate<>(deliveryAssignedEventProducerFactory);
     }
 
     @Bean
@@ -43,8 +43,11 @@ public class KafkaConfiguration {
         Map<String, Object> props = kafkaProperties.buildConsumerProperties();
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class);
-        props.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, "delivery.kafka");
-        return new DefaultKafkaConsumerFactory<>(props);
+        props.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, "kafka");
+        // Явно указываем тип сообщения для десериализации
+        JacksonJsonDeserializer<OrderPaidEvent> valueDeserializer =
+                new JacksonJsonDeserializer<>(OrderPaidEvent.class);
+        return new DefaultKafkaConsumerFactory<>(props, new LongDeserializer(), valueDeserializer);
     }
 
     @Bean

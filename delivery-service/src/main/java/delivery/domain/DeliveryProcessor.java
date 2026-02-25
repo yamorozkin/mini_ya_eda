@@ -3,8 +3,6 @@ package delivery.domain;
 import kafka.DeliveryAssignedEvent;
 import kafka.OrderPaidEvent;
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -15,10 +13,10 @@ import java.util.concurrent.ThreadLocalRandom;
 @RequiredArgsConstructor
 public class DeliveryProcessor {
 
-    private final DeliveryEntityRepository repository;
-
-    @Qualifier("kafkaTemplate")
-    private final KafkaTemplate<Long, DeliveryAssignedEvent> kafkaTemplate;
+        private final DeliveryEntityRepository repository;
+        // В контексте есть единственный KafkaTemplate с типом <Long, DeliveryAssignedEvent>,
+        // поэтому отдельный @Qualifier не нужен и только мешает.
+        private final KafkaTemplate<Long, DeliveryAssignedEvent> kafkaTemplate;
 
     @Value("${delivery-assigned-topic}")
     private String deliveryAssignedTopic;

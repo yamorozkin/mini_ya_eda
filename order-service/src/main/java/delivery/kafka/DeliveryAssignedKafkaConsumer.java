@@ -22,5 +22,4 @@ public class DeliveryAssignedKafkaConsumer {
     public void listen(DeliveryAssignedEvent event) {
         orderProcessor.processDeliveryAssigned(event);
     }
-
 }

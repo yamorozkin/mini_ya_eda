@@ -71,8 +71,8 @@ public class OrderProcessor {
                 .amount(entity.getTotalAmount())
                 .build());
         var status = response.paymentStatus().equals(PaymentStatus.PAYMENT_SUCCEEDED)
-                ? OrderStatus.PAYMENT_FAILED
-                : OrderStatus.PAID;
+                ? OrderStatus.PAID
+                : OrderStatus.PAYMENT_FAILED;
         entity.setOrderStatus(status);
         sendOrderPaidEvent(entity, response);
 
