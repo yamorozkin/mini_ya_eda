@@ -22,5 +22,6 @@ public interface OrderEntityMapper {
     
     OrderEntity toEntity(CreateOrderRequestDto requestDto);
 
+    @Mapping(source = "items", target = "orderItemEntities")
     OrderDto toOrderDto(OrderEntity orderEntity);
 }
