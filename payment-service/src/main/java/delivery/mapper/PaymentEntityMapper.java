@@ -1,5 +1,6 @@
-package delivery.model.db;
+package delivery.mapper;
 
+import delivery.model.entity.PaymentEntity;
 import http.payment.model.dto.CreatePaymentRequestDto;
 import http.payment.model.dto.CreatePaymentResponseDto;
 import org.mapstruct.Mapper;

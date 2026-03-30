@@ -1,4 +1,4 @@
-package delivery.model.db;
+package delivery.model.entity;
 
 import http.payment.model.status.PaymentMethod;
 import http.payment.model.status.PaymentStatus;

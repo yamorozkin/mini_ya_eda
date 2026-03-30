@@ -1,4 +1,6 @@
-package delivery.model.db;
+package delivery.repository;
+
+import delivery.model.entity.PaymentEntity;
 
 import java.util.Optional;
 

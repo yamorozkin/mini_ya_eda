@@ -1,7 +1,7 @@
 package delivery.service;
 
-import delivery.model.db.PaymentEntityMapper;
-import delivery.model.db.PaymentEntityRepository;
+import delivery.mapper.PaymentEntityMapper;
+import delivery.repository.PaymentEntityRepository;
 import http.payment.model.dto.CreatePaymentRequestDto;
 import http.payment.model.dto.CreatePaymentResponseDto;
 import http.payment.model.status.PaymentMethod;

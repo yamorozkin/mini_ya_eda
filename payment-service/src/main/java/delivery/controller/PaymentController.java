@@ -1,5 +1,5 @@
 package delivery.controller;
-import delivery.model.PaymentService;
+import delivery.service.PaymentService;
 import http.payment.model.dto.CreatePaymentRequestDto;
 import http.payment.model.dto.CreatePaymentResponseDto;
 import lombok.AllArgsConstructor;
