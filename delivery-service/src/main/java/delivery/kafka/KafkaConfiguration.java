@@ -23,6 +23,8 @@ import java.util.Map;
 @Configuration
 public class KafkaConfiguration {
 
+    //Конфиги для жесткой типизации, явное указание всех типов.
+
     @Bean
     DefaultKafkaProducerFactory<Long, DeliveryAssignedEvent> deliveryAssignedEventProducerFactory(KafkaProperties properties) {
         Map<String, Object> producerProperties = properties.buildProducerProperties();

@@ -14,6 +14,8 @@ import http.payment.model.status.PaymentStatus;
 import kafka.DeliveryAssignedEvent;
 import kafka.OrderPaidEvent;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -31,17 +33,25 @@ public class OrderService {
     private final OrderEntityMapper orderEntityMapper;
     private final PaymentHttpClient paymentHttpClient;
     private final KafkaTemplate<Long, OrderPaidEvent> kafkaTemplate;
+    private final Logger log =  LoggerFactory.getLogger(OrderService.class);
+
+    //Кафка используется для взаимодействия delivery service <-> order service, асинхронно.
 
     @Value("${order-paid-topic}")
     private String orderPaidTopic;
+
+    //Создание заказа.
 
     public OrderEntity create(CreateOrderRequestDto request) {
 
         var entity = orderEntityMapper.toEntity(request);
         calculatePricingForOrder(entity);
+        log.info("Calculated price {}", entity.getTotalAmount());
         entity.setOrderStatus(OrderStatus.PENDING_PAYMENT);
         return repository.save(entity);
     }
+
+    //Вычисление цены заказа (рандом - заглушка).
 
     private void calculatePricingForOrder(OrderEntity entity) {
         BigDecimal totalPrice = BigDecimal.ZERO;
@@ -53,12 +63,16 @@ public class OrderService {
         entity.setTotalAmount(totalPrice);
     }
 
+    //Получение заказа, проверяется только наличие в бд сущности с указанным айди.
 
     public OrderEntity getOrderOrThrow(Long id) {
         var orderEntityOptional = repository.findById(id);
         return orderEntityOptional.orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "Entity with id `%s` not found".formatted(id)));
+                new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Entity with id `%s` not found".formatted(id)));
     }
+
+    //Оплата order service <-> payment service, синхронно, через клиент.
 
     public OrderEntity processPayment(Long id, OrderPaymentRequest request) {
         var entity = getOrderOrThrow(id);
@@ -70,14 +84,28 @@ public class OrderService {
                 .paymentMethod(request.paymentMethod())
                 .amount(entity.getTotalAmount())
                 .build());
+
         var status = response.paymentStatus().equals(PaymentStatus.PAYMENT_SUCCEEDED)
                 ? OrderStatus.PAID
                 : OrderStatus.PAYMENT_FAILED;
-        entity.setOrderStatus(status);
-        sendOrderPaidEvent(entity, response);
 
-        return repository.save(entity);
+        entity.setOrderStatus(status);
+        var savedEntity = repository.save(entity);
+
+        //Отправка в кафку события исключительно успешной оплаты.
+
+        if (status == OrderStatus.PAID){
+            sendOrderPaidEvent(entity, response);
+        }
+        else{
+            log.info("Payment failed for order with id `{}`", id);
+            log.info("Event won't send");
+        }
+
+        return savedEntity;
     }
+
+    //Отправка события в кафку (для сервиса доставки).
 
     private void sendOrderPaidEvent(OrderEntity entity, CreatePaymentResponseDto response) {
         kafkaTemplate.send(
@@ -92,24 +120,21 @@ public class OrderService {
         );
     }
 
+    //Получение информации о доставке.
 
     public void processDeliveryAssigned(DeliveryAssignedEvent event) {
         var order = getOrderOrThrow(event.orderId());
-        if(!order.getOrderStatus().equals(OrderStatus.PAID)){
-            processIncorrectState(order);
+
+        //Для предотвращения дублирования (доставщик уже был назначен - ничего не делаем).
+
+        if (order.getOrderStatus() == OrderStatus.DELIVERY_ASSIGNED) {
+            log.info("Delivery already assigned to order with id `{}`", event.orderId());
             return;
         }
+
         order.setOrderStatus(OrderStatus.DELIVERY_ASSIGNED);
         order.setCourierName(event.courierName());
         order.setEtaMinutes(event.etaMinutes());
         repository.save(order);
-    }
-
-    private void processIncorrectState(OrderEntity order) {
-        if(order.getOrderStatus().equals(OrderStatus.DELIVERY_ASSIGNED)){
-            return;
-        }else if (!order.getOrderStatus().equals(OrderStatus.PAID)){
-            return;
-        }
     }
 }

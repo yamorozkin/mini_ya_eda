@@ -1,3 +1,4 @@
+name: yandex-food
 services:
   postgres:
     image: postgres:15
@@ -8,7 +9,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: orders
     healthcheck:
       test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
@@ -32,9 +33,9 @@ services:
       KAFKA_NODE_ID: 1
       CLUSTER_ID: RTXpyZ4CTCWGQNqPf-tyog
       KAFKA_PROCESS_ROLES: controller,broker
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@127.0.0.1:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
     healthcheck:
       test: kafka-topics --bootstrap-server localhost:9092 --list
       interval: 10s

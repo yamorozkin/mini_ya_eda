@@ -15,13 +15,13 @@ import java.util.concurrent.ThreadLocalRandom;
 @RequiredArgsConstructor
 public class DeliveryService {
 
-        private final DeliveryEntityRepository repository;
-        // В контексте есть единственный KafkaTemplate с типом <Long, DeliveryAssignedEvent>,
-        // поэтому отдельный @Qualifier не нужен и только мешает.
-        private final KafkaTemplate<Long, DeliveryAssignedEvent> kafkaTemplate;
+    private final DeliveryEntityRepository repository;
+    private final KafkaTemplate<Long, DeliveryAssignedEvent> kafkaTemplate;
 
     @Value("${delivery-assigned-topic}")
     private String deliveryAssignedTopic;
+
+    //Основной метод-обработчик.
 
     public void processOrderPaid(OrderPaidEvent orderPaidEvent) {
         var orderId = orderPaidEvent.orderId();
@@ -32,6 +32,8 @@ public class DeliveryService {
         var assignedDelivery = assignDelivery(orderId);
         sendDeliveryAssignedEvent(assignedDelivery);
     }
+
+    //Отправка события о назначении доставки в кафку.
 
     private void  sendDeliveryAssignedEvent(DeliveryEntity assignedDelivery) {
         kafkaTemplate.send(
@@ -44,6 +46,8 @@ public class DeliveryService {
                         .build()
         );
     }
+
+    //Назначение курьера и сохранение его в бд.
 
     private DeliveryEntity assignDelivery(Long orderId) {
         var entity = new DeliveryEntity();

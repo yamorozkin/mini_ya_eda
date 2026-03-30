@@ -23,6 +23,8 @@ import java.util.Map;
 @Configuration
 public class KafkaConfiguration {
 
+    //Конфиги для жесткой типизации, явное указание всех типов.
+
     @Bean
     DefaultKafkaProducerFactory<Long, OrderPaidEvent> orderPaidEventProducerFactory(KafkaProperties properties) {
         Map<String, Object> producerProperties = properties.buildProducerProperties();
@@ -42,7 +44,6 @@ public class KafkaConfiguration {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class);
         props.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, "kafka");
-        // Явно указываем тип сообщения для десериализации
         JacksonJsonDeserializer<DeliveryAssignedEvent> valueDeserializer =
                 new JacksonJsonDeserializer<>(DeliveryAssignedEvent.class);
         return new DefaultKafkaConsumerFactory<>(props, new LongDeserializer(), valueDeserializer);
