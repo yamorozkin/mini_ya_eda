@@ -1,7 +1,7 @@
 package delivery.kafka;
 
 
-import delivery.domain.OrderProcessor;
+import delivery.service.OrderService;
 import kafka.DeliveryAssignedEvent;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -13,13 +13,13 @@ import org.springframework.kafka.annotation.KafkaListener;
 @AllArgsConstructor
 public class DeliveryAssignedKafkaConsumer {
 
-    private final OrderProcessor orderProcessor;
+    private final OrderService orderService;
 
     @KafkaListener(
             topics = "${delivery-assigned-topic}",
             containerFactory = "deliveryAssignedEventListenerFactory"
     )
     public void listen(DeliveryAssignedEvent event) {
-        orderProcessor.processDeliveryAssigned(event);
+        orderService.processDeliveryAssigned(event);
     }
 }

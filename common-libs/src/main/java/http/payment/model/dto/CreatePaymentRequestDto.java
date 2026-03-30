@@ -1,4 +1,5 @@
-package kafka;
+package http.payment.model.dto;
+
 
 import http.payment.model.status.PaymentMethod;
 import lombok.Builder;
@@ -6,10 +7,10 @@ import lombok.Builder;
 import java.math.BigDecimal;
 
 @Builder
-public record OrderPaidEvent(
+public record CreatePaymentRequestDto(
         Long orderId,
-        Long paymentId,
-        BigDecimal amount,
-        PaymentMethod paymentMethod
+        PaymentMethod paymentMethod,
+        BigDecimal amount
+
 ) {
 }

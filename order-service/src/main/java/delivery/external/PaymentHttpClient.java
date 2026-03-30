@@ -1,7 +1,7 @@
 package delivery.external;
 
-import http.payment.CreatePaymentRequestDto;
-import http.payment.CreatePaymentResponseDto;
+import http.payment.model.dto.CreatePaymentRequestDto;
+import http.payment.model.dto.CreatePaymentResponseDto;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.annotation.PostExchange;
