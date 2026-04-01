@@ -1,3 +1,7 @@
+//разобраться с зависимостями в gradle, привести к единому виду
+//проверить корректно ли в OrderResponse выводится id или лучше его убрать
+//в OrderResponse убрать отображение null полей
+
 package delivery;
 
 import org.springframework.boot.SpringApplication;
