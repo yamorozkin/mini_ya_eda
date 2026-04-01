@@ -34,4 +34,10 @@ public class DeliveryEntity {
 
     @Column(name = "house_number", nullable = false)
     private Long houseNumber;
+
+    @Column(name = "destination_street")
+    private String destinationStreet;
+
+    @Column(name = "destination_house_number")
+    private Long destinationHouseNumber;
 }
