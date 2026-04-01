@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -25,11 +27,12 @@ public class DeliveryService {
 
     public void processOrderPaid(OrderPaidEvent orderPaidEvent) {
         var orderId = orderPaidEvent.orderId();
-        var found = repository.findByOrderId(orderId);
-        if(found.isPresent()) {
-            return;
-        }
-        var assignedDelivery = assignDelivery(orderId);
+//        var found = repository.findByOrderId(orderId);
+//        //если заказ с таким номером доставки уже существует значит он уже доставляется
+//        if(found.isPresent()) {
+//            return;
+//        }
+        var assignedDelivery = assignDelivery(orderId, orderPaidEvent.street(), orderPaidEvent.houseNumber());
         sendDeliveryAssignedEvent(assignedDelivery);
     }
 
@@ -49,11 +52,22 @@ public class DeliveryService {
 
     //Назначение курьера и сохранение его в бд.
 
-    private DeliveryEntity assignDelivery(Long orderId) {
-        var entity = new DeliveryEntity();
-        entity.setOrderId(orderId);
-        entity.setCourierName("abob-"+ ThreadLocalRandom.current().nextInt(1,100));
-        entity.setEtaMinutes(ThreadLocalRandom.current().nextInt(10, 60));
-        return repository.save(entity);
+    private DeliveryEntity assignDelivery(Long orderId,  String street, Long houseNumber) {
+        List<DeliveryEntity> deliveries = repository.findFreeCouriers();
+        DeliveryEntity closestCourier =  deliveries.stream()
+                .min(Comparator.comparingLong(courier ->
+                        Math.abs(courier.getHouseNumber() - houseNumber)))
+                .orElse(null);
+
+        if (closestCourier == null) {
+            throw new RuntimeException("No available couriers found near house " + houseNumber);
+        }
+
+        Long distance = Math.abs(houseNumber - closestCourier.getHouseNumber());
+        Integer etaMinutes = Math.toIntExact((distance != null) ? distance * 2 : 1);
+        closestCourier.setEtaMinutes(etaMinutes);
+        closestCourier.setOrderId(orderId);
+
+        return repository.save(closestCourier);
     }
 }

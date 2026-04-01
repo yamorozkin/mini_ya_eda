@@ -13,20 +13,20 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "deliveries")
+@Table(name = "couriers")
 public class DeliveryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "order_id", nullable = false, unique = true)
+    @Column(name = "order_id")
     private Long orderId;
 
     @Column(name = "courier_name", nullable = false)
     private String courierName;
 
-    @Column(name = "eta_minutes",  nullable = false)
+    @Column(name = "eta_minutes")
     private Integer etaMinutes;
 
     @Column(name = "street", nullable = false)

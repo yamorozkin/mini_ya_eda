@@ -6,6 +6,7 @@ package delivery;
 4) добавить метод который выбирает ближайшего курьера
 5) сделать так чтобы курьер реально доставлял определенное время заказ и после становился свободен
  */
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
