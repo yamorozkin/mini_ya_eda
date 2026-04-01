@@ -10,7 +10,8 @@ import java.util.Set;
 public record OrderDto(
         Long id,
         Long customerId,
-        String address,
+        String street,
+        Long houseNumber,
         BigDecimal totalAmount,
         String courierName,
         Integer etaMinutes,

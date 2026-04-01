@@ -43,7 +43,7 @@ public class OrderController {
     Создание заказа.
 
     На вход:
-    customerId, address,
+    customerId, street, houseNumber
     Set<OrderItemRequestDto> items
 
     На выход:

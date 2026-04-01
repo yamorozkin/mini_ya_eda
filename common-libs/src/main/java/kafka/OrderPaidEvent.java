@@ -10,6 +10,8 @@ public record OrderPaidEvent(
         Long orderId,
         Long paymentId,
         BigDecimal amount,
-        PaymentMethod paymentMethod
+        PaymentMethod paymentMethod,
+        String street,
+        Long houseNumber
 ) {
 }
