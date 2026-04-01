@@ -28,9 +28,11 @@ public class OrderEntity {
     @Column(name = "customer_id")
     private Long customerId;
 
-    @Column(name = "address")
-    private String address;
+    @Column(name = "street")
+    private String street;
 
+    @Column(name = "house_number")
+    private Long houseNumber;
 
     @Column(name = "total_amount", precision = 19, scale = 2)
     private BigDecimal totalAmount;

@@ -5,7 +5,8 @@ import java.util.Set;
 
 public record CreateOrderRequestDto (
          Long customerId,
-         String address,
+         String street,
+         Long houseNumber,
          Set<OrderItemRequestDto> items
 ){
 }

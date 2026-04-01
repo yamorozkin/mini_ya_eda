@@ -116,6 +116,8 @@ public class OrderService {
                         .amount(entity.getTotalAmount())
                         .paymentMethod(response.paymentMethod())
                         .paymentId(response.paymentId())
+                        .street(entity.getStreet())
+                        .houseNumber(entity.getHouseNumber())
                         .build()
         );
     }

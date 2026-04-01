@@ -28,4 +28,10 @@ public class DeliveryEntity {
 
     @Column(name = "eta_minutes",  nullable = false)
     private Integer etaMinutes;
+
+    @Column(name = "street", nullable = false)
+    private String street;
+
+    @Column(name = "house_number", nullable = false)
+    private Long houseNumber;
 }
