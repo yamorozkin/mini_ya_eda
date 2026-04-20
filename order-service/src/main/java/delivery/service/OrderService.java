@@ -1,3 +1,5 @@
+//нужно дописать логику delivered статуса
+
 package delivery.service;
 
 import delivery.model.OrderPaymentRequest;
@@ -145,10 +147,10 @@ public class OrderService {
 
         //Для предотвращения дублирования (доставщик уже был назначен - ничего не делаем).
 
-        if (order.getOrderStatus() == OrderStatus.DELIVERY_ASSIGNED) {
-            log.info("Delivery already assigned to order with id `{}`", event.orderId());
-            return;
-        }
+//        if (order.getOrderStatus() == OrderStatus.DELIVERED) {
+//            log.info("Delivery already done to order with id `{}`", event.orderId());
+//            return;
+//        }
 
         order.setOrderStatus(OrderStatus.DELIVERY_ASSIGNED);
         order.setCourierName(event.courierName());

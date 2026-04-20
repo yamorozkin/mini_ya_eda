@@ -6,41 +6,53 @@ plugins {
 
 group = "delivery"
 version = "0.0.1-SNAPSHOT"
-description = "Demo project for Spring Boot"
 
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
+allprojects {
+	repositories {
+		mavenCentral()
 	}
 }
 
-configurations {
-	compileOnly {
-		extendsFrom(configurations.annotationProcessor.get())
+subprojects {
+
+	val excludedModules = listOf("common-libs")
+
+	if (!excludedModules.contains(project.name)) {
+
+		apply(plugin = "java")
+		apply(plugin = "org.springframework.boot")
+		apply(plugin = "io.spring.dependency-management")
+
+		java {
+			toolchain {
+				languageVersion.set(JavaLanguageVersion.of(21))
+			}
+		}
+
+		dependencies {
+			implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+			implementation("org.springframework.boot:spring-boot-starter-web")
+
+			//Lombok + Mapstruct
+			compileOnly("org.projectlombok:lombok")
+			annotationProcessor("org.projectlombok:lombok")
+			implementation("org.mapstruct:mapstruct:1.6.3")
+			annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
+			annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+
+			//общие либы для API и БД
+			implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+			runtimeOnly("org.postgresql:postgresql")
+
+			//библиотека DTO
+			implementation(project(":common-libs"))
+
+			//тесты
+			testImplementation("org.springframework.boot:spring-boot-starter-test")
+		}
+
+		tasks.withType<Test> {
+			useJUnitPlatform()
+		}
 	}
-}
-
-repositories {
-	mavenCentral()
-}
-
-dependencies {
-	//implementation("com.fasterxml.jackson.core:jackson-annotations:2.18.2") //для пропуска null
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation("org.springframework.boot:spring-boot-starter-kafka")
-	implementation("org.springframework.boot:spring-boot-starter-webmvc")
-	compileOnly("org.projectlombok:lombok")
-	annotationProcessor("org.projectlombok:lombok")
-	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
-	testImplementation("org.springframework.boot:spring-boot-starter-kafka-test")
-	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-	implementation("org.mapstruct:mapstruct:1.6.3")
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
-	annotationProcessor("org.mapstruct:mapstruct-processor:1.6.0")
-	annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
-}
-
-tasks.withType<Test> {
-	useJUnitPlatform()
 }
