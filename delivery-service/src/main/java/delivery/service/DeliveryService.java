@@ -3,6 +3,7 @@ package delivery.service;
 import delivery.model.entity.DeliveryEntity;
 import delivery.repository.DeliveryEntityRepository;
 import kafka.DeliveryAssignedEvent;
+import kafka.DeliveryFinishedEvent;
 import kafka.OrderPaidEvent;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -15,14 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
 public class DeliveryService {
 
     private final DeliveryEntityRepository repository;
-    private final KafkaTemplate<Long, DeliveryAssignedEvent> kafkaTemplate;
+    private final KafkaTemplate<Long, DeliveryAssignedEvent> deliveryAssignedEventKafkaTemplate;
+    private final KafkaTemplate<Long, DeliveryFinishedEvent> deliveryFinishedEventKafkaTemplate;
     private final Logger log = LoggerFactory.getLogger(DeliveryService.class);
 
     @Value("${delivery-assigned-topic}")
@@ -47,7 +48,7 @@ public class DeliveryService {
     //Отправка события о назначении доставки в кафку.
 
     private void  sendDeliveryAssignedEvent(DeliveryEntity assignedDelivery) {
-        kafkaTemplate.send(
+        deliveryAssignedEventKafkaTemplate.send(
                 deliveryAssignedTopic,
                 assignedDelivery.getOrderId(),
                 DeliveryAssignedEvent.builder()
@@ -108,10 +109,10 @@ public class DeliveryService {
     }
 
     private void sendCompletedDeliveryEvent(DeliveryEntity finishedDelivery) {
-        kafkaTemplate.send(
-                deliveryAssignedTopic,
+        deliveryFinishedEventKafkaTemplate.send(
+                deliveryFinishedTopic,
                 finishedDelivery.getOrderId(),
-                DeliveryAssignedEvent.builder()
+                DeliveryFinishedEvent.builder()
                         .courierName(finishedDelivery.getCourierName())
                         .orderId(finishedDelivery.getOrderId())
                         .build()

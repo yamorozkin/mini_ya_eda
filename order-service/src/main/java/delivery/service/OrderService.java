@@ -171,7 +171,8 @@ public class OrderService {
 
         order.setOrderStatus(OrderStatus.DELIVERED);
         order.setCourierName(event.courierName());
-        order.setEtaMinutes(0);
+        order.setEtaMinutes(null);
+        log.info("delivery ={} is finished", event);
         repository.save(order);
     }
 }
