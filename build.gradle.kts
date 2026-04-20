@@ -25,6 +25,7 @@ repositories {
 }
 
 dependencies {
+	//implementation("com.fasterxml.jackson.core:jackson-annotations:2.18.2") //для пропуска null
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-kafka")
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
@@ -38,8 +39,6 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 	annotationProcessor("org.mapstruct:mapstruct-processor:1.6.0")
 	annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
-
-	//дщьи
 }
 
 tasks.withType<Test> {

@@ -4,9 +4,11 @@ import delivery.model.OrderPaymentRequest;
 import delivery.model.entity.OrderEntity;
 import delivery.mapper.OrderEntityMapper;
 import delivery.model.entity.OrderItemEntity;
+import delivery.repository.ItemJpaRepository;
 import delivery.repository.OrderJpaRepository;
 import delivery.external.PaymentHttpClient;
 import http.order.model.dto.CreateOrderRequestDto;
+import http.order.model.dto.OrderResponseDto;
 import http.order.model.status.OrderStatus;
 import http.payment.model.dto.CreatePaymentRequestDto;
 import http.payment.model.dto.CreatePaymentResponseDto;
@@ -30,6 +32,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class OrderService {
 
     private final OrderJpaRepository repository;
+    private final ItemJpaRepository itemJpaRepository;
     private final OrderEntityMapper orderEntityMapper;
     private final PaymentHttpClient paymentHttpClient;
     private final KafkaTemplate<Long, OrderPaidEvent> kafkaTemplate;
@@ -44,21 +47,34 @@ public class OrderService {
 
     public OrderEntity create(CreateOrderRequestDto request) {
 
-        var entity = orderEntityMapper.toEntity(request);
+        var entity = orderEntityMapper.toOrderEntity(request);
+        enrichOrderItemsFromCatalog(entity);
         calculatePricingForOrder(entity);
-        log.info("Calculated price {}", entity.getTotalAmount());
         entity.setOrderStatus(OrderStatus.PENDING_PAYMENT);
-        return repository.save(entity);
+        OrderEntity savedEntity = repository.save(entity);
+        return savedEntity;
     }
 
-    //Вычисление цены заказа (рандом - заглушка).
+    //Заполнение данных из таблицы товаров
+
+    private void enrichOrderItemsFromCatalog(OrderEntity entity) {
+        for(OrderItemEntity orderItem : entity.getItems()){
+            var catalogItem = itemJpaRepository.findById(orderItem.getItemId())
+                    .orElseThrow(() -> new RuntimeException("Item not found"));
+            orderItem.setName(catalogItem.getName());
+            orderItem.setPriceAtPurchase(catalogItem.getPrice());
+            orderItem.setOrder(entity);
+        }
+    }
+
+    //Вычисление цены заказа
 
     private void calculatePricingForOrder(OrderEntity entity) {
         BigDecimal totalPrice = BigDecimal.ZERO;
-        for(OrderItemEntity item : entity.getItems()){
-            var randomPrice = ThreadLocalRandom.current().nextDouble(100,5000);
-            item.setPriceAtPurchase(BigDecimal.valueOf(randomPrice));
-            totalPrice = item.getPriceAtPurchase().multiply(BigDecimal.valueOf(item.getQuantity())).add(totalPrice);
+        for(OrderItemEntity orderItem : entity.getItems()){
+            BigDecimal lineTotal = orderItem.getPriceAtPurchase()
+                    .multiply(BigDecimal.valueOf(orderItem.getQuantity()));
+            totalPrice = totalPrice.add(lineTotal);
         }
         entity.setTotalAmount(totalPrice);
     }
