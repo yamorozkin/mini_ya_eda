@@ -1,6 +1,7 @@
 package delivery.kafka;
 
 import kafka.DeliveryAssignedEvent;
+import kafka.DeliveryFinishedEvent;
 import kafka.OrderPaidEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -58,5 +59,21 @@ public class KafkaConfiguration {
         factory.setConsumerFactory(orderPaidEventConsumerFactory);
         factory.setBatchListener(false);
         return factory;
+    }
+
+    //продюсер для отправки сообщения что заказ доставлен
+    @Bean
+    DefaultKafkaProducerFactory<Long, DeliveryFinishedEvent> deliveryFinishedEventProducerFactory(KafkaProperties properties) {
+        Map<String, Object> producerProperties = properties.buildProducerProperties();
+        producerProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
+        producerProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
+        return new DefaultKafkaProducerFactory<>(producerProperties);
+    }
+
+    @Bean
+    KafkaTemplate<Long, DeliveryFinishedEvent> deliveryFinishedEventKafkaTemplate(
+            DefaultKafkaProducerFactory<Long, DeliveryFinishedEvent> deliveryFinishedEventProducerFactory
+    ) {
+        return new KafkaTemplate<>(deliveryFinishedEventProducerFactory);
     }
 }

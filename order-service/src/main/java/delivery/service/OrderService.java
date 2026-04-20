@@ -16,6 +16,7 @@ import http.payment.model.dto.CreatePaymentRequestDto;
 import http.payment.model.dto.CreatePaymentResponseDto;
 import http.payment.model.status.PaymentStatus;
 import kafka.DeliveryAssignedEvent;
+import kafka.DeliveryFinishedEvent;
 import kafka.OrderPaidEvent;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -155,6 +156,22 @@ public class OrderService {
         order.setOrderStatus(OrderStatus.DELIVERY_ASSIGNED);
         order.setCourierName(event.courierName());
         order.setEtaMinutes(event.etaMinutes());
+        repository.save(order);
+    }
+
+    public void processDeliveryFinished(DeliveryFinishedEvent event) {
+        var order = getOrderOrThrow(event.orderId());
+
+        //Для предотвращения дублирования (доставщик уже был назначен - ничего не делаем).
+
+        if (order.getOrderStatus() == OrderStatus.DELIVERED) {
+            log.info("Delivery already delivered to order with id `{}`", event.orderId());
+            return;
+        }
+
+        order.setOrderStatus(OrderStatus.DELIVERED);
+        order.setCourierName(event.courierName());
+        order.setEtaMinutes(0);
         repository.save(order);
     }
 }

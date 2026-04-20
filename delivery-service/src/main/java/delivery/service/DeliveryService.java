@@ -28,6 +28,9 @@ public class DeliveryService {
     @Value("${delivery-assigned-topic}")
     private String deliveryAssignedTopic;
 
+    @Value("deliveryFinish.events")
+    private String deliveryFinishedTopic;
+
     //Основной метод-обработчик.
 
     public void processOrderPaid(OrderPaidEvent orderPaidEvent) {
@@ -89,7 +92,7 @@ public class DeliveryService {
             }
             if(currentEta == 1){
                 courier.setEtaMinutes(0);
-                sendDeliveryAssignedEvent(courier);
+                sendCompletedDeliveryEvent(courier);
                 log.info("Order number ={} has been delivered",  courier.getOrderId());
                 courier.setOrderId(0L);
                 courier.setHouseNumber(courier.getDestinationHouseNumber());
@@ -102,5 +105,16 @@ public class DeliveryService {
             }
         }
         repository.saveAll(deliveries);
+    }
+
+    private void sendCompletedDeliveryEvent(DeliveryEntity finishedDelivery) {
+        kafkaTemplate.send(
+                deliveryAssignedTopic,
+                finishedDelivery.getOrderId(),
+                DeliveryAssignedEvent.builder()
+                        .courierName(finishedDelivery.getCourierName())
+                        .orderId(finishedDelivery.getOrderId())
+                        .build()
+        );
     }
 }

@@ -20,3 +20,4 @@ payment-service:
 
 order-paid-topic: orders.events
 delivery-assigned-topic: delivery.events
+delivery-finished-topic: deliveryFinish.events
