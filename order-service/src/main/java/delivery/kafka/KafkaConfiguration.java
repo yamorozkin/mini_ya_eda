@@ -1,6 +1,7 @@
 package delivery.kafka;
 
 import kafka.DeliveryAssignedEvent;
+import kafka.DeliveryFinishedEvent;
 import kafka.OrderPaidEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -53,6 +54,29 @@ public class KafkaConfiguration {
     public KafkaListenerContainerFactory<?> deliveryAssignedEventListenerFactory(ConsumerFactory<Long, DeliveryAssignedEvent> deliveryAssignedEventConsumerFactory) {
         ConcurrentKafkaListenerContainerFactory<Long, DeliveryAssignedEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(deliveryAssignedEventConsumerFactory);
+        factory.setBatchListener(false);
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<Long, DeliveryFinishedEvent> deliveryFinishedEventConsumerFactory(KafkaProperties kafkaProperties) {
+        Map<String, Object> props = kafkaProperties.buildConsumerProperties();
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class);
+        props.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, "kafka");
+
+        // Указываем класс DeliveryFinishedEvent для десериализации
+        JacksonJsonDeserializer<DeliveryFinishedEvent> valueDeserializer =
+                new JacksonJsonDeserializer<>(DeliveryFinishedEvent.class);
+        return new DefaultKafkaConsumerFactory<>(props, new LongDeserializer(), valueDeserializer);
+    }
+
+
+    @Bean
+    public KafkaListenerContainerFactory<?> deliveryFinishedEventListenerFactory(
+            ConsumerFactory<Long, DeliveryFinishedEvent> deliveryFinishedEventConsumerFactory) {
+        ConcurrentKafkaListenerContainerFactory<Long, DeliveryFinishedEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(deliveryFinishedEventConsumerFactory);
         factory.setBatchListener(false);
         return factory;
     }
