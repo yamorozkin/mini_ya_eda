@@ -1,4 +1,7 @@
 package delivery.model.entity;
 
-public class UserResponseDto {
+public record UserResponseDto(
+        String name,
+        String email
+) {
 }

@@ -13,6 +13,11 @@
           <package value="delivery" />
         </packages>
       </persistence-unit>
+      <persistence-unit moduleName="demo4ka.user-service.main" name="Default">
+        <packages>
+          <package value="delivery" />
+        </packages>
+      </persistence-unit>
     </persistence-units>
   </component>
 </project>
