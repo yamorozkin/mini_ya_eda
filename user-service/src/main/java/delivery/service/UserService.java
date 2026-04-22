@@ -33,6 +33,10 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
+    public boolean existsById(Long id) {
+        return repository.existsById(id);
+    }
+
     @Transactional
     public void deleteUser(Long id) {
         repository.deleteById(id);

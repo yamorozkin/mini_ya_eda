@@ -25,6 +25,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) //отключаем CSRF, так как у нас REST API и JWT
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/users/*/exists").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

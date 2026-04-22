@@ -17,6 +17,8 @@ server:
 
 payment-service:
   base-url: http://localhost:8081
+user-service:
+  base-url: http://localhost:8083
 
 order-paid-topic: orders.events
 delivery-assigned-topic: delivery.events

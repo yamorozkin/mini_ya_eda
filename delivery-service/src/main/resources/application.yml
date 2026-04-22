@@ -1,6 +1,6 @@
 spring:
   application:
-    name: payment-service
+    name: delivery-service
   datasource:
     driver-class-name: org.postgresql.Driver
     password: postgres

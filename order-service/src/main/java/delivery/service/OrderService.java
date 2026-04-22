@@ -9,8 +9,8 @@ import delivery.model.entity.OrderItemEntity;
 import delivery.repository.ItemJpaRepository;
 import delivery.repository.OrderJpaRepository;
 import delivery.external.PaymentHttpClient;
+import delivery.external.UserHttpClient;
 import http.order.model.dto.CreateOrderRequestDto;
-import http.order.model.dto.OrderResponseDto;
 import http.order.model.status.OrderStatus;
 import http.payment.model.dto.CreatePaymentRequestDto;
 import http.payment.model.dto.CreatePaymentResponseDto;
@@ -25,10 +25,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
-import java.util.concurrent.ThreadLocalRandom;
 
 @RequiredArgsConstructor
 @Service
@@ -38,6 +39,7 @@ public class OrderService {
     private final ItemJpaRepository itemJpaRepository;
     private final OrderEntityMapper orderEntityMapper;
     private final PaymentHttpClient paymentHttpClient;
+    private final UserHttpClient userHttpClient;
     private final KafkaTemplate<Long, OrderPaidEvent> kafkaTemplate;
     private final Logger log =  LoggerFactory.getLogger(OrderService.class);
 
@@ -48,14 +50,36 @@ public class OrderService {
 
     //Создание заказа.
 
-    public OrderEntity create(CreateOrderRequestDto request) {
+    public OrderEntity create(CreateOrderRequestDto request, String authorizationHeader) {
+        Long customerId = resolveCurrentUserId(authorizationHeader);
 
         var entity = orderEntityMapper.toOrderEntity(request);
+        entity.setCustomerId(customerId);
         enrichOrderItemsFromCatalog(entity);
         calculatePricingForOrder(entity);
         entity.setOrderStatus(OrderStatus.PENDING_PAYMENT);
         OrderEntity savedEntity = repository.save(entity);
         return savedEntity;
+    }
+
+    private Long resolveCurrentUserId(String authorizationHeader) {
+        if (authorizationHeader == null || authorizationHeader.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authorization header is required");
+        }
+        try {
+            var user = userHttpClient.getMyProfile(authorizationHeader);
+            if (user == null || user.id() == null) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Cannot resolve user from token");
+            }
+            return user.id();
+        } catch (HttpClientErrorException.Unauthorized | HttpClientErrorException.Forbidden e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.SERVICE_UNAVAILABLE,
+                    "Cannot reach user-service to resolve current user"
+            );
+        }
     }
 
     //Заполнение данных из таблицы товаров
@@ -91,10 +115,19 @@ public class OrderService {
                         "Entity with id `%s` not found".formatted(id)));
     }
 
+    public OrderEntity getOrderOrThrowForCurrentUser(Long id, String authorizationHeader) {
+        Long customerId = resolveCurrentUserId(authorizationHeader);
+        OrderEntity entity = getOrderOrThrow(id);
+        assertOrderOwnership(entity, customerId);
+        return entity;
+    }
+
     //Оплата order service <-> payment service, синхронно, через клиент.
 
-    public OrderEntity processPayment(Long id, OrderPaymentRequest request) {
+    public OrderEntity processPayment(Long id, OrderPaymentRequest request, String authorizationHeader) {
+        Long customerId = resolveCurrentUserId(authorizationHeader);
         var entity = getOrderOrThrow(id);
+        assertOrderOwnership(entity, customerId);
         if(!entity.getOrderStatus().equals(OrderStatus.PENDING_PAYMENT)){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -122,6 +155,12 @@ public class OrderService {
         }
 
         return savedEntity;
+    }
+
+    private void assertOrderOwnership(OrderEntity entity, Long customerId) {
+        if (!customerId.equals(entity.getCustomerId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have access to this order");
+        }
     }
 
     //Отправка события в кафку (для сервиса доставки).

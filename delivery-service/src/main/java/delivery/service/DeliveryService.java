@@ -29,7 +29,7 @@ public class DeliveryService {
     @Value("${delivery-assigned-topic}")
     private String deliveryAssignedTopic;
 
-    @Value("deliveryFinish.events")
+    @Value("${delivery-finished-topic}")
     private String deliveryFinishedTopic;
 
     //Основной метод-обработчик.

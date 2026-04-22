@@ -26,6 +26,7 @@ import http.order.model.dto.OrderResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
 //В качестве ответа используется одна dto - OrderDto, запросы представляют разные dto.
@@ -44,9 +45,10 @@ public class OrderController {
 
     @PostMapping
     public OrderResponseDto create(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
             @RequestBody CreateOrderRequestDto request
     ) {
-        var saved = orderService.create(request);
+        var saved = orderService.create(request, authorizationHeader);
         log.info("Created order: {}", saved);
         return orderEntityMapper.toOrderResponseDto(saved);
     }
@@ -55,8 +57,9 @@ public class OrderController {
 
     @PostMapping("/{id}/pay")
     public OrderResponseDto payOrder(@PathVariable Long id,
+                                     @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader,
                                      @RequestBody OrderPaymentRequest request) {
-        var entity = orderService.processPayment(id, request);
+        var entity = orderService.processPayment(id, request, authorizationHeader);
         log.info("Payment order: {}", entity);
         return orderEntityMapper.toOrderResponseDto(entity);
     }
@@ -64,8 +67,9 @@ public class OrderController {
     //Получение данных о заказе.
 
     @GetMapping("/{id}")
-    public OrderResponseDto getOne(@PathVariable Long id) {
-        var found = orderService.getOrderOrThrow(id);
+    public OrderResponseDto getOne(@PathVariable Long id,
+                                   @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        var found = orderService.getOrderOrThrowForCurrentUser(id, authorizationHeader);
         log.info("Found order: {}", found);
         return orderEntityMapper.toOrderResponseDto(found);
     }
