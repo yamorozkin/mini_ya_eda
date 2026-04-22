@@ -1,11 +1,10 @@
 package delivery.mapper;
 
 import delivery.model.entity.UserEntity;
-import delivery.model.entity.UserRequestDto;
-import delivery.model.entity.UserResponseDto;
+import delivery.model.UserRequestDto;
+import delivery.model.UserResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.ReportingPolicy;
 
 //@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
 //        componentModel = MappingConstants.ComponentModel.SPRING)

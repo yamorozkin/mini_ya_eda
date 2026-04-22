@@ -1,6 +1,4 @@
-package delivery.model.entity;
-
-import jakarta.persistence.Column;
+package delivery.model;
 
 public record UserRequestDto (
         String name,

@@ -1,24 +1,40 @@
 package delivery.service;
 
 import delivery.mapper.UserEntityMapper;
+import delivery.model.UserResponseDto;
 import delivery.model.entity.UserEntity;
-import delivery.model.entity.UserRequestDto;
-import delivery.model.entity.UserResponseDto;
 import delivery.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository repository;
     private final UserEntityMapper mapper;
 
-    public UserEntity create(UserRequestDto request){
-        UserEntity entity = mapper.toUserEntity(request);
-        return repository.save(entity);
+
+    public UserResponseDto getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity user = repository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
+
+        return mapper.toUserResponseDto(user);
+    }
+
+
+    public UserEntity findByEmail(String email) {
+        return repository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    @Transactional
+    public void deleteUser(Long id) {
+        repository.deleteById(id);
     }
 }
