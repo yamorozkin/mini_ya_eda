@@ -6,6 +6,7 @@ public record OrderItemResponseDto(
         Long itemId,
         String name,
         BigDecimal priceAtPurchase,
-        Integer quantity
+        Integer quantity,
+        String imageUrl
 ) {
 }

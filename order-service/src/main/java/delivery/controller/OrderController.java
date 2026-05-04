@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 //В качестве ответа используется одна dto - OrderDto, запросы представляют разные dto.
 
 @RestController
@@ -72,5 +74,16 @@ public class OrderController {
         var found = orderService.getOrderOrThrowForCurrentUser(id, authorizationHeader);
         log.info("Found order: {}", found);
         return orderEntityMapper.toOrderResponseDto(found);
+    }
+
+    //Получение всех заказов пользователя.
+
+    @GetMapping
+    public List<OrderResponseDto> getUserOrders(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        var orders = orderService.getUserOrders(authorizationHeader);
+        log.info("Found {} orders for user", orders.size());
+        return orders.stream()
+                .map(orderEntityMapper::toOrderResponseDto)
+                .toList();
     }
 }

@@ -24,4 +24,7 @@ public class ItemEntity {
 
     @Column(name = "price")
     private BigDecimal price;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 }

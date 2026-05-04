@@ -34,6 +34,9 @@ public class OrderItemEntity {
     @Column(name = "price_at_purchase")
     private BigDecimal priceAtPurchase;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
 
     @Override
     public final boolean equals(Object o) {

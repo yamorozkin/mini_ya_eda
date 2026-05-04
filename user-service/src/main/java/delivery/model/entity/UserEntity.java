@@ -8,7 +8,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -38,6 +40,12 @@ public class UserEntity implements UserDetails {
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @ElementCollection
+    @CollectionTable(name = "user_backup_codes", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "backup_code")
+    @Builder.Default
+    private Set<String> backupCodes = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -30,6 +30,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -90,6 +91,7 @@ public class OrderService {
                     .orElseThrow(() -> new RuntimeException("Item not found"));
             orderItem.setName(catalogItem.getName());
             orderItem.setPriceAtPurchase(catalogItem.getPrice());
+            orderItem.setImageUrl(catalogItem.getImageUrl());
             orderItem.setOrder(entity);
         }
     }
@@ -122,6 +124,13 @@ public class OrderService {
         return entity;
     }
 
+    //Получение всех заказов пользователя.
+
+    public List<OrderEntity> getUserOrders(String authorizationHeader) {
+        Long customerId = resolveCurrentUserId(authorizationHeader);
+        return repository.findByCustomerId(customerId);
+    }
+
     //Оплата order service <-> payment service, синхронно, через клиент.
 
     public OrderEntity processPayment(Long id, OrderPaymentRequest request, String authorizationHeader) {
@@ -131,30 +140,41 @@ public class OrderService {
         if(!entity.getOrderStatus().equals(OrderStatus.PENDING_PAYMENT)){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        var response = paymentHttpClient.createPayment(CreatePaymentRequestDto.builder()
-                .orderId(id)
-                .paymentMethod(request.paymentMethod())
-                .amount(entity.getTotalAmount())
-                .build());
+        try {
+            var response = paymentHttpClient.createPayment(CreatePaymentRequestDto.builder()
+                    .orderId(id)
+                    .paymentMethod(request.paymentMethod())
+                    .amount(entity.getTotalAmount())
+                    .build());
 
-        var status = response.paymentStatus().equals(PaymentStatus.PAYMENT_SUCCEEDED)
-                ? OrderStatus.PAID
-                : OrderStatus.PAYMENT_FAILED;
+            var status = response.paymentStatus().equals(PaymentStatus.PAYMENT_SUCCEEDED)
+                    ? OrderStatus.PAID
+                    : OrderStatus.PAYMENT_FAILED;
 
-        entity.setOrderStatus(status);
-        var savedEntity = repository.save(entity);
+            entity.setOrderStatus(status);
+            var savedEntity = repository.save(entity);
 
-        //Отправка в кафку события исключительно успешной оплаты.
+            //Отправка в кафку события исключительно успешной оплаты.
 
-        if (status == OrderStatus.PAID){
-            sendOrderPaidEvent(entity, response);
+            if (status == OrderStatus.PAID){
+                sendOrderPaidEvent(entity, response);
+            }
+            else{
+                log.info("Payment failed for order with id `{}`", id);
+                log.info("Event won't send");
+            }
+
+            return savedEntity;
+        } catch (HttpClientErrorException.BadRequest e) {
+            log.error("Bad request to payment service: {}", e.getResponseBodyAsString());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid payment data: " + e.getResponseBodyAsString());
+        } catch (HttpClientErrorException e) {
+            log.error("Payment service error: {}", e.getStatusCode());
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Payment service unavailable");
+        } catch (RestClientException e) {
+            log.error("Error communicating with payment service", e);
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Cannot reach payment service");
         }
-        else{
-            log.info("Payment failed for order with id `{}`", id);
-            log.info("Event won't send");
-        }
-
-        return savedEntity;
     }
 
     private void assertOrderOwnership(OrderEntity entity, Long customerId) {

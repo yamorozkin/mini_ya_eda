@@ -5,10 +5,10 @@ import delivery.model.UserRequestDto;
 import delivery.model.UserResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.ReportingPolicy;
 
-//@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
-//        componentModel = MappingConstants.ComponentModel.SPRING)
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserEntityMapper {
     UserEntity toUserEntity(UserRequestDto requestDto);
     UserResponseDto toUserResponseDto(UserEntity entity);
