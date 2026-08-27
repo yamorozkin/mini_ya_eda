@@ -31,10 +31,10 @@ const BottomNav = () => {
   return (
     <nav className="fixed bottom-0 w-full z-50 rounded-t-3xl bg-white dark:bg-neutral-900 border-t border-neutral-100 dark:border-neutral-800 shadow-[0px_-8px_30px_rgba(0,0,0,0.08)] md:hidden">
       <div className="flex justify-around items-center h-20 px-2">
-        <NavItem to="/" icon="home" label="Home" active={location.pathname === '/'} />
-        <NavItem to="/orders" icon="receipt_long" label="Orders" active={location.pathname === '/orders'} />
-        <NavItem to="/cart" icon="shopping_bag" label="Cart" active={location.pathname === '/cart'} />
-        <NavItem to="/profile" icon="person" label="Profile" active={location.pathname === '/profile'} />
+        <NavItem to="/" icon="home" label="Главная" active={location.pathname === '/'} />
+        <NavItem to="/orders" icon="receipt_long" label="Заказы" active={location.pathname === '/orders'} />
+        <NavItem to="/cart" icon="shopping_bag" label="Корзина" active={location.pathname === '/cart'} />
+        <NavItem to="/profile" icon="person" label="Профиль" active={location.pathname === '/profile'} />
       </div>
     </nav>
   );

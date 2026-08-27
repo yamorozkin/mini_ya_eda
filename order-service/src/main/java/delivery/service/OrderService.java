@@ -44,7 +44,6 @@ public class OrderService {
     private final KafkaTemplate<Long, OrderPaidEvent> kafkaTemplate;
     private final Logger log =  LoggerFactory.getLogger(OrderService.class);
 
-    //Кафка используется для взаимодействия delivery service <-> order service, асинхронно.
 
     @Value("${order-paid-topic}")
     private String orderPaidTopic;

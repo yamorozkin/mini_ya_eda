@@ -36,17 +36,12 @@ const Profile = () => {
   };
 
   return (
-    <main className="max-w-screen-xl mx-auto px-4 py-stack-lg pb-32">
-      <div className="mb-stack-lg">
-        <h1 className="font-headline-xl text-on-surface">Настройки аккаунта</h1>
-        <p className="font-body-lg text-secondary">Управляйте своим профилем и безопасностью</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Profile Info */}
+    <main className="min-h-screen bg-background py-8 px-4 md:px-8">
+      <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
+        {/* Profile Section */}
         <div className="md:col-span-1">
           <div className="bg-surface-container-lowest p-6 rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.04)]">
-            <div className="flex flex-col items-center text-center space-y-stack-sm">
+            <div className="flex flex-col items-center space-y-4">
               <div className="relative">
                 <img
                   alt="Профиль пользователя"
@@ -87,10 +82,10 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Security Section */}
+        {/* Backup Codes Section */}
         <div className="md:col-span-2">
           <div className="bg-surface-container-lowest p-6 rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.04)]">
-            <h2 className="font-headline-md text-on-surface mb-4">Двухфакторная аутентификация</h2>
+            <h2 className="font-headline-md text-on-surface mb-4">Резервные коды</h2>
             <p className="font-body-md text-secondary mb-6">
               Генерируйте резервные коды для безопасного входа в аккаунт, если забудете пароль. Каждый код можно использовать только один раз.
             </p>

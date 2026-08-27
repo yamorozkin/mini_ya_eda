@@ -44,8 +44,8 @@ const Login = () => {
           src="https://lh3.googleusercontent.com/aida-public/AB6AXuAN4DP8K6_swoH0zOPDpdtRq84J_N96SV_0NqUDMxMLmZSoxilOcZsPlsx7Yt2aIeBaFrtg1BBNV9_EtKxcxNz_T2liAfHEo6Z0coKXzbAIePW-GQBgaoqYN6rlpmrcK5owG1hac5zSm1bB35Bp3rMt47ZgHxKVyLseK13CafYOA5ShjQ0xosY3wwUancK2qkDfm2pQzcKp5hPf0WrsCFaANAKpXgi22JCamUTpvrTcksWEnueA_AO_IeEIVk6SCwnPkEwQu3jfji0"
         />
         <div className="relative z-10 p-margin-page text-center md:text-left max-w-lg">
-          <h1 className="font-headline-xl text-white mb-stack-sm">QuickBite</h1>
-          <p className="font-body-lg text-white/80">Быстрая доставка еды для занятых людей. Ваши любимые блюда за минуты.</p>
+          <h1 className="font-headline-xl text-white mb-stack-sm">Burger House</h1>
+          <p className="font-body-lg text-white/80">Быстрая доставка вкусных бургеров для занятых людей. Наши бургеры приготовлены с любовью и доставлены за 30 минут.</p>
           <div className="hidden md:grid grid-cols-2 gap-stack-md mt-stack-lg">
             <div className="bg-white/10 backdrop-blur-md p-stack-md rounded-xl border border-white/10">
               <span className="material-symbols-outlined text-primary-container mb-stack-sm">bolt</span>
@@ -123,4 +123,3 @@ const Login = () => {
 };
 
 export default Login;
-

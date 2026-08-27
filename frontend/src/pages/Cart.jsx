@@ -90,7 +90,7 @@ const Cart = () => {
   }
 
   const subtotal = getTotalPrice();
-  const deliveryFee = 0;
+  const deliveryFee = subtotal >= 500 ? 0 : 150; // Бесплатная доставка от 500 рублей
   const serviceFee = Math.floor(subtotal * 0.02);
   const total = subtotal + deliveryFee + serviceFee;
 
