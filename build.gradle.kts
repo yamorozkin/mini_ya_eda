@@ -1,8 +1,9 @@
 plugins {
 	java
-	id("org.springframework.boot") version "4.0.2"
-	id("io.spring.dependency-management") version "1.1.7"
+	id("org.springframework.boot") version "4.0.2" apply false
+	id("io.spring.dependency-management") version "1.1.7" apply false
 }
+
 
 group = "delivery"
 version = "0.0.1-SNAPSHOT"
@@ -49,6 +50,7 @@ subprojects {
 
 			//тесты
 			testImplementation("org.springframework.boot:spring-boot-starter-test")
+			testRuntimeOnly("com.h2database:h2")
 		}
 
 		tasks.withType<Test> {
